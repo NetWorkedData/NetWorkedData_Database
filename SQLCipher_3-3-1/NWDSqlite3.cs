@@ -1,12 +1,63 @@
+
+//=====================================================================================================================
 using System.Runtime.InteropServices;
 using System.Text;
-using Sqlite3DatabaseHandle = System.IntPtr;
-using Sqlite3Statement = System.IntPtr;
+using System;
 
-namespace SQLite4Unity3d
+//=====================================================================================================================
+using Sqlite3DatabaseHandle = System.IntPtr;
+
+//=====================================================================================================================
+namespace NetWorkedData
 {
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    [Flags]
+    public enum SQLiteOpenFlags
+    {
+        ReadOnly = 1,
+        ReadWrite = 2,
+        Create = 4,
+        NoMutex = 0x8000,
+        FullMutex = 0x10000,
+        SharedCache = 0x20000,
+        PrivateCache = 0x40000,
+        ProtectionComplete = 0x00100000,
+        ProtectionCompleteUnlessOpen = 0x00200000,
+        ProtectionCompleteUntilFirstUserAuthentication = 0x00300000,
+        ProtectionNone = 0x00400000
+    }
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    [Flags]
+    public enum CreateFlags
+    {
+        None = 0,
+        ImplicitPK = 1, // create a primary key for field called 'Id' (Orm.ImplicitPkName)
+        ImplicitIndex = 2, // create an index for fields ending in 'Id' (Orm.ImplicitIndexSuffix)
+        AllImplicit = 3, // do both above
+
+        AutoIncPK = 4 // force PK field to be auto inc
+    }
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    public class SQLiteException : Exception
+    {
+        //-------------------------------------------------------------------------------------------------------------
+        protected SQLiteException(SQLite3.Result r, string message) : base(message)
+        {
+            this.Result = r;
+        }
+        //-------------------------------------------------------------------------------------------------------------
+        public SQLite3.Result Result { get; private set; }
+        //-------------------------------------------------------------------------------------------------------------
+        public static SQLiteException New(SQLite3.Result r, string message)
+        {
+            return new SQLiteException(r, message);
+        }
+        //-------------------------------------------------------------------------------------------------------------
+    }
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     public static partial class SQLite3
     {
+        //-------------------------------------------------------------------------------------------------------------
         public enum ColType
         {
             Integer = 1,
@@ -15,14 +66,14 @@ namespace SQLite4Unity3d
             Blob = 4,
             Null = 5
         }
-
+        //-------------------------------------------------------------------------------------------------------------
         public enum ConfigOption
         {
             SingleThread = 1,
             MultiThread = 2,
             Serialized = 3
         }
-
+        //-------------------------------------------------------------------------------------------------------------
         public enum ExtendedResult
         {
             IOErrorRead = Result.IOError | (1 << 8),
@@ -71,7 +122,7 @@ namespace SQLite4Unity3d
             NoticeRecoverWAL = Result.Notice | (1 << 8),
             NoticeRecoverRollback = Result.Notice | (2 << 8)
         }
-
+        //-------------------------------------------------------------------------------------------------------------
         public enum Result
         {
             OK = 0,
@@ -106,21 +157,11 @@ namespace SQLite4Unity3d
             Row = 100,
             Done = 101
         }
+        //-------------------------------------------------------------------------------------------------------------
     }
-
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     public static partial class SQLite3
     {
-#if UNITY_EDITOR
-        private const string DLL_NAME = "sqlcipher";
-        //private const string DLL_NAME = "sqlite3";
-#elif UNITY_ANDROID
-		const string DLL_NAME = "sqlcipher";
-#elif UNITY_IOS
-		const string DLL_NAME = "__Internal";
-#else
-        private const string DLL_NAME = "sqlcipher";
-#endif
-
         [DllImport(DLL_NAME, EntryPoint = "sqlite3_open", CallingConvention = CallingConvention.Cdecl)]
         public static extern Result Open([MarshalAs(UnmanagedType.LPStr)] string filename,
             out Sqlite3DatabaseHandle db);
@@ -144,7 +185,7 @@ namespace SQLite4Unity3d
         [DllImport(DLL_NAME, EntryPoint = "sqlite3_enable_load_extension", CallingConvention = CallingConvention.Cdecl)]
         public static extern Result EnableLoadExtension(Sqlite3DatabaseHandle db, int onoff);
 
-        [DllImport(DLL_NAME, EntryPoint = "sqlite3_close_v2", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(DLL_NAME, EntryPoint = "sqlite3_close", CallingConvention = CallingConvention.Cdecl)]
         public static extern Result Close(Sqlite3DatabaseHandle db);
 
         [DllImport(DLL_NAME, EntryPoint = "sqlite3_initialize", CallingConvention = CallingConvention.Cdecl)]
@@ -167,10 +208,6 @@ namespace SQLite4Unity3d
 
         [DllImport(DLL_NAME, EntryPoint = "sqlite3_prepare_v2", CallingConvention = CallingConvention.Cdecl)]
         public static extern Result Prepare2(Sqlite3DatabaseHandle db, [MarshalAs(UnmanagedType.LPStr)] string sql,
-            int numBytes, out Sqlite3DatabaseHandle stmt, Sqlite3DatabaseHandle pzTail);
-
-        [DllImport(DLL_NAME, EntryPoint = "sqlite3_execute", CallingConvention = CallingConvention.Cdecl)]
-        public static extern Result Execute(Sqlite3DatabaseHandle db, [MarshalAs(UnmanagedType.LPStr)] string sql,
             int numBytes, out Sqlite3DatabaseHandle stmt, Sqlite3DatabaseHandle pzTail);
 
         [DllImport(DLL_NAME, EntryPoint = "sqlite3_step", CallingConvention = CallingConvention.Cdecl)]
@@ -276,25 +313,16 @@ namespace SQLite4Unity3d
         [DllImport(DLL_NAME, EntryPoint = "sqlite3_libversion_number", CallingConvention = CallingConvention.Cdecl)]
         public static extern int LibVersionNumber();
 
+        //-------------------------------------------------------------------------------------------------------------
         public static Sqlite3DatabaseHandle Prepare2(Sqlite3DatabaseHandle db, string query)
         {
             Sqlite3DatabaseHandle stmt;
             Result r = Prepare2(db, query, Encoding.UTF8.GetByteCount(query), out stmt, Sqlite3DatabaseHandle.Zero);
-            if (r != Result.OK)
-            {
-                throw SQLiteException.New(r, GetErrmsg(db) + " in " + query);
-            }
+            if (r != Result.OK) throw SQLiteException.New(r, GetErrmsg(db));
             return stmt;
         }
-        public static Sqlite3DatabaseHandle Execute(Sqlite3DatabaseHandle db, string query)
-        {
-            Sqlite3DatabaseHandle stmt;
-            Result r = Execute(db, query, Encoding.UTF8.GetByteCount(query), out stmt, Sqlite3DatabaseHandle.Zero);
-            if (r != Result.OK)
-            {
-                throw SQLiteException.New(r, GetErrmsg(db) + " in " + query);
-            }
-            return stmt;
-        }
+        //-------------------------------------------------------------------------------------------------------------
     }
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
+//=====================================================================================================================

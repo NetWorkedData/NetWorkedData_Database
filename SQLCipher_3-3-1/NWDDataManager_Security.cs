@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using SQLite4Unity3d;
+
 using System.Text;
 
 #if UNITY_EDITOR
@@ -21,7 +21,19 @@ using UnityEditor;
 namespace NetWorkedData
 {
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    public partial class NWDDataManager
+    public static partial class SQLite3
+    {
+#if UNITY_EDITOR
+        private const string DLL_NAME = "sqlcipher";
+#elif UNITY_STANDALONE
+        private const string DLL_NAME = "sqlcipher";
+#elif UNITY_ANDROID
+		private const string DLL_NAME = "sqlcipher";
+#elif UNITY_IOS
+		private const string DLL_NAME = "__Internal";
+#endif
+    }
+        public partial class NWDDataManager
     {
         //-------------------------------------------------------------------------------------------------------------
         const string KDBPrefix = "N";
