@@ -29,16 +29,17 @@ namespace NetWorkedData
         public string GetVersion()
         {
             string rReturn = SQLite3.LibVersionNumber().ToString();
-            if (SQLiteEditorHandle != null)
+            string rCipherVersion = " (sqlcipher -error-)";
+            if (DataEditorLoaded == true)
             {
                 IntPtr stmt = SQLite3.Prepare2(SQLiteEditorHandle, "PRAGMA cipher_version;");
                 while (SQLite3.Step(stmt) == SQLite3.Result.Row)
                 {
-                    rReturn = rReturn + "(sqlcipher " + SQLite3.ColumnString(stmt, 0) + ")";
+                    rCipherVersion = " (sqlcipher " + SQLite3.ColumnString(stmt, 0) + ")";
                 }
                 SQLite3.Finalize(stmt);
             }
-            return rReturn;
+            return rReturn + rCipherVersion;
         }
         //-------------------------------------------------------------------------------------------------------------
         public bool IsSecure()
