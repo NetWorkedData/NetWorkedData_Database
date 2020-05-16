@@ -33,7 +33,7 @@ namespace NetWorkedData
 		private const string DLL_NAME = "__Internal";
 #endif
     }
-        public partial class NWDDataManager
+    public partial class NWDDataManager
     {
         //-------------------------------------------------------------------------------------------------------------
         const string KDBPrefix = "O";
@@ -42,7 +42,7 @@ namespace NetWorkedData
         {
             string rReturn = SQLite3.LibVersionNumber().ToString();
             string rCipherVersion = " (sqlcipher -error-)";
-            if (DataEditorLoaded == true)
+            if (EditorDatabaseLoaded == true)
             {
                 IntPtr stmt = SQLite3.Prepare2(SQLiteEditorHandle, "PRAGMA cipher_version;");
                 while (SQLite3.Step(stmt) == SQLite3.Result.Row)
@@ -61,12 +61,12 @@ namespace NetWorkedData
         //-------------------------------------------------------------------------------------------------------------
         public string DatabaseAccountName()
         {
-            return KDBPrefix + NWDAppConfiguration.SharedInstance().DatabasePrefix + DatabaseNameAccount;
+            return KDBPrefix + NWDAppConfiguration.SharedInstance().DatabasePrefix + NWD.K_DeviceDatabaseName;
         }
         //-------------------------------------------------------------------------------------------------------------
         public string DatabaseEditorName()
         {
-            return KDBPrefix + DatabaseNameEditor;
+            return KDBPrefix + NWD.K_EditorDatabaseName;
         }
         //-------------------------------------------------------------------------------------------------------------
         public void DatabaseEditorOpenKey(string tDatabasePathEditor)
@@ -87,7 +87,7 @@ namespace NetWorkedData
             if (IsSecure())
             {
                 string tAccountPass = NWDAppConfiguration.SharedInstance().GetAccountPass(sSurProtection);
-                SQLite3.Result trResultPassword = SQLite3.Key(SQLiteAccountHandle, tAccountPass, tAccountPass.Length);
+                SQLite3.Result trResultPassword = SQLite3.Key(SQLiteDeviceHandle, tAccountPass, tAccountPass.Length);
                 if (trResultPassword != SQLite3.Result.OK)
                 {
                     throw SQLiteException.New(trResultPassword, string.Format("Could not open database file with password: {0} ({1})", tDatabasePathAccount, trResultPassword));
