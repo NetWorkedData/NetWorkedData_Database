@@ -31,6 +31,8 @@ namespace NetWorkedData
 		private const string DLL_NAME = "sqlcipher";
 #elif UNITY_IOS
 		private const string DLL_NAME = "__Internal";
+#elif UNITY_TVOS
+		private const string DLL_NAME = "__Internal";
 #endif
     }
     public partial class NWDDataManager
