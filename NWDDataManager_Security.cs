@@ -70,6 +70,11 @@ namespace NetWorkedData
             return KDBPrefix + NWD.K_EditorDatabaseName;
         }
         //-------------------------------------------------------------------------------------------------------------
+        public string DatabaseBuildName()
+        {
+            return KDBPrefix + NWD.K_BuildDatabaseName;
+        }
+        //-------------------------------------------------------------------------------------------------------------
         public void DatabaseEditorOpenKey(string tDatabasePathEditor)
         {
             if (IsSecure())
