@@ -45,7 +45,7 @@ namespace NetWorkedData
     public partial class NWDDataManager
     {
         //-------------------------------------------------------------------------------------------------------------
-        const string KDBPrefix = "P"; // old used 'O' for 4.3.0 '' for ealier version
+        const string KDBPrefix = "R"; // old used 'O' for 4.3.0 '' for ealier version
         //-------------------------------------------------------------------------------------------------------------
         public string GetVersion()
         {
