@@ -22,8 +22,10 @@ namespace NetWorkedData
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     public static partial class SQLite3
     {
-#if UNITY_EDITOR
-        private const string DLL_NAME = "sqlcipher";
+#if UNITY_EDITOR_OSX
+        private const string DLL_NAME = "libsqlite3.0";
+#elif UNITY_EDITOR
+        private const string DLL_NAME = "libsqlcipher";
 #elif UNITY_STANDALONE
         private const string DLL_NAME = "sqlcipher";
 #elif UNITY_ANDROID
