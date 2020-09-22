@@ -5,14 +5,11 @@ PluginImporter:
   serializedVersion: 2
   iconMap: {}
   executionOrder: {}
-  defineConstraints: []
-  isPreloaded: 1
+  isPreloaded: 0
   isOverridable: 0
-  isExplicitlyReferenced: 0
-  validateReferences: 1
   platformData:
   - first:
-      : Any
+      '': Any
     second:
       enabled: 0
       settings:
@@ -24,16 +21,14 @@ PluginImporter:
         Exclude OSXUniversal: 1
         Exclude Win: 0
         Exclude Win64: 1
-        Exclude iOS: 1
-        Exclude tvOS: 1
   - first:
-      : OSXIntel
+      '': OSXIntel
     second:
       enabled: 1
       settings:
         CPU: AnyCPU
   - first:
-      : OSXIntel64
+      '': OSXIntel64
     second:
       enabled: 0
       settings:
@@ -110,16 +105,6 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        AddToEmbeddedBinaries: false
-        CPU: AnyCPU
-        CompileFlags: 
-        FrameworkDependencies: 
-  - first:
-      tvOS: tvOS
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
         CompileFlags: 
         FrameworkDependencies: 
   userData: 
