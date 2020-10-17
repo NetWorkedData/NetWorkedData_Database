@@ -6,7 +6,7 @@
   "unity": "2019.1",
   "unityRelease": "0b5",
   "dependencies": {
-    "com.net-worked-data.engine": "https://github.com/NetWorkedData/NetWorkedData.git"
+    "com.net-worked-data.engine": "git+https://github.com/orgs/NetWorkedData/NetWorkedData#1.0.0"
  },
  "keywords": [
     "NetWorkedData",
