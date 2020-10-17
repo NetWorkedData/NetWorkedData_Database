@@ -1,0 +1,21 @@
+{
+  "name": "com.net-worked-data.database",
+  "version": "1.0.0",
+  "displayName": "NetWorkedData Database",
+  "description": "NetWorkedData package to manage",
+  "unity": "2019.1",
+  "unityRelease": "0b5",
+  "dependencies": {
+    "com.net-worked-data.engine": "https://github.com/NetWorkedData/NetWorketData.git"
+ },
+ "keywords": [
+    "NetWorkedData",
+    "idéMobi",
+    "idemobi"
+  ],
+  "author": {
+    "name": "idéMobi",
+    "email": "unity@example.com",
+    "url": "https://github.com/orgs/NetWorkedData/"
+  }
+}
