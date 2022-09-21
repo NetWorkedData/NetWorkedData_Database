@@ -15,7 +15,12 @@ using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+//=====================================================================================================================
+#if UNITY_EDITOR
+using Sqlite = NetWorkedData.Logged.SQLite3; // Have a logged interface for SQLite (Editor only !)
+#else
+using Sqlite = NetWorkedData.SQLite3;
+#endif
 //=====================================================================================================================
 namespace NetWorkedData
 {
@@ -42,6 +47,7 @@ namespace NetWorkedData
 		private const string DLL_NAME = "__Internal";
 #endif
     }
+
     public partial class NWDDataManager
     {
         //-------------------------------------------------------------------------------------------------------------
@@ -49,16 +55,16 @@ namespace NetWorkedData
         //-------------------------------------------------------------------------------------------------------------
         public string GetVersion()
         {
-            string rReturn = SQLite3.LibVersionNumber().ToString();
+            string rReturn = Sqlite.LibVersionNumber().ToString();
             string rCipherVersion = " (sqlcipher -error-)";
             if (EditorDatabaseLoaded == true)
             {
-                IntPtr stmt = SQLite3.Prepare2(SQLiteEditorHandle, "PRAGMA cipher_version;");
-                while (SQLite3.Step(stmt) == SQLite3.Result.Row)
+                IntPtr stmt = Sqlite.Prepare2(SQLiteEditorHandle, "PRAGMA cipher_version;");
+                while (Sqlite.Step(stmt) == SQLite3.Result.Row)
                 {
-                    rCipherVersion = " (sqlcipher " + SQLite3.ColumnString(stmt, 0) + ")";
+                    rCipherVersion = " (sqlcipher " + Sqlite.ColumnString(stmt, 0) + ")";
                 }
-                SQLite3.Finalize(stmt);
+                Sqlite.Finalize(stmt);
             }
             return rReturn + rCipherVersion;
         }
@@ -88,7 +94,7 @@ namespace NetWorkedData
             if (IsSecure())
             {
                 string tEditorPass = NWDAppConfiguration.SharedInstance().GetEditorPass();
-                SQLite3.Result trResultPassword = SQLite3.Key(SQLiteEditorHandle, tEditorPass, tEditorPass.Length);
+                SQLite3.Result trResultPassword = Sqlite.Key(SQLiteEditorHandle, tEditorPass, tEditorPass.Length);
                 if (trResultPassword != SQLite3.Result.OK)
                 {
                     throw SQLiteException.New(trResultPassword, string.Format("Could not open database file with password: {0} ({1})", tDatabasePathEditor, trResultPassword));
@@ -101,7 +107,7 @@ namespace NetWorkedData
             if (IsSecure())
             {
                 string tAccountPass = NWDAppConfiguration.SharedInstance().GetAccountPass(sSurProtection);
-                SQLite3.Result trResultPassword = SQLite3.Key(SQLiteDeviceHandle, tAccountPass, tAccountPass.Length);
+                SQLite3.Result trResultPassword = Sqlite.Key(SQLiteDeviceHandle, tAccountPass, tAccountPass.Length);
                 if (trResultPassword != SQLite3.Result.OK)
                 {
                     throw SQLiteException.New(trResultPassword, string.Format("Could not open database file with password: {0} ({1})", tDatabasePathAccount, trResultPassword));
