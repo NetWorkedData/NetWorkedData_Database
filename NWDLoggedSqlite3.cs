@@ -30,7 +30,7 @@ namespace NetWorkedData.Logged
         //-------------------------------------------------------------------------------------------------------------
     }
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    public static partial class Sqlite3
+    public static partial class SQLite3
     {
         static private readonly SQLite3.LogLevel defaultLogLevel = SQLite3.LogLevel.Error;
 
