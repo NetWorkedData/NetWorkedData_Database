@@ -37,6 +37,11 @@ namespace NetWorkedData.Logged
 
         private static Result Logger(Result sResult, string sMethod, SQLite3.LogLevel sLogLevel)
         {
+            return Logger(sResult, sMethod, sLogLevel, IntPtr.Zero);
+        }
+
+        private static Result Logger(Result sResult, string sMethod, SQLite3.LogLevel sLogLevel, Sqlite3DatabaseHandle sHandle)
+        {
             switch (sResult)
             {
                 case Result.OK:
@@ -44,13 +49,13 @@ namespace NetWorkedData.Logged
                 case Result.Done:
                     if (sLogLevel.HasFlag(SQLite3.LogLevel.Ok))
                     {
-                        Log(sResult.ToString(), sMethod);
+                        Log(Debug.Log, sResult.ToString(), sMethod, sHandle);
                     }
                     break;
                 default:
                     if (sLogLevel.HasFlag(SQLite3.LogLevel.Error))
                     {
-                        Log(sResult.ToString(), sMethod);
+                        Log(Debug.LogError, sResult.ToString(), sMethod, sHandle);
                     }
                     break;
             }
@@ -59,97 +64,134 @@ namespace NetWorkedData.Logged
 
         private static int Logger(int sResult, string sMethod, bool sLogged = false)
         {
+            return Logger(sResult, sMethod, IntPtr.Zero, sLogged);
+        }
+
+        private static int Logger(int sResult, string sMethod, Sqlite3DatabaseHandle sHandle, bool sLogged = false)
+        {
             if (sLogged)
             {
-                Log(sResult.ToString(), sMethod);
+                Log(Debug.LogError, sResult.ToString(), sMethod, sHandle);
             }
             return sResult;
         }
 
         private static long Logger(long sResult, string sMethod, bool sLogged = false)
         {
+            return Logger(sResult, sMethod, IntPtr.Zero, sLogged);
+        }
+
+        private static long Logger(long sResult, string sMethod, Sqlite3DatabaseHandle sHandle,  bool sLogged = false)
+        {
             if (sLogged)
             {
-                Log(sResult.ToString(), sMethod);
+                Log(Debug.LogError, sResult.ToString(), sMethod, sHandle);
             }
             return sResult;
         }
 
         private static double Logger(double sResult, string sMethod, bool sLogged = false)
         {
+            return Logger(sResult, sMethod, IntPtr.Zero, sLogged);
+        }
+
+        private static double Logger(double sResult, string sMethod, Sqlite3DatabaseHandle sHandle, bool sLogged = false)
+        {
             if (sLogged)
             {
-                Log(sResult.ToString(), sMethod);
+                Log(Debug.LogError, sResult.ToString(), sMethod, sHandle);
             }
             return sResult;
         }
 
         private static ColType Logger(ColType sResult, string sMethod, bool sLogged = false)
         {
+            return Logger(sResult, sMethod, IntPtr.Zero, sLogged);
+        }
+
+        private static ColType Logger(ColType sResult, string sMethod, Sqlite3DatabaseHandle sHandle, bool sLogged = false)
+        {
             if (sLogged)
             {
-                Log(sResult.ToString(), sMethod);
+                Log(Debug.LogError, sResult.ToString(), sMethod, sHandle);
             }
             return sResult;
         }
 
         private static ExtendedResult Logger(ExtendedResult sResult, string sMethod, bool sLogged = false)
         {
+            return Logger(sResult, sMethod, IntPtr.Zero, sLogged);
+        }
+
+        private static ExtendedResult Logger(ExtendedResult sResult, string sMethod, Sqlite3DatabaseHandle sHandle, bool sLogged = false)
+        {
             if (sLogged)
             {
-                Log(sResult.ToString(), sMethod);
+                Log(Debug.LogError, sResult.ToString(), sMethod, sHandle);
             }
             return sResult;
         }
-
 
         private static string Logger(string sResult, string sMethod, bool sLogged = false)
         {
+            return Logger(sResult, sMethod, IntPtr.Zero, sLogged);
+        }
+
+        private static string Logger(string sResult, string sMethod, Sqlite3DatabaseHandle sHandle, bool sLogged = false)
+        {
             if (sLogged)
             {
-                Log(sResult, sMethod);
+                Log(Debug.LogError, sResult, sMethod, sHandle);
             }
             return sResult;
         }
 
-        private static void Log (string sResult, string sMethod)
+        private static void Log(Action<object> action, string sResult, string sMethod, Sqlite3DatabaseHandle sHandle)
         {
-            Debug.Log(sMethod + " returned `" + sResult + "`");
+            if (sHandle != IntPtr.Zero)
+            {
+                action(sMethod + " returned `" + sResult + "` using handle: " + sHandle.ToInt64());
+            }
+            else
+            {
+                action(sMethod + " returned `" + sResult + "`");
+            }
+
         }
 
         public static Result Open([MarshalAs(UnmanagedType.LPStr)] string filename, out Sqlite3DatabaseHandle db)
         {
-            return Logger(NetWorkedData.SQLite3.Open(filename, out db), nameof(Open), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.Open(filename, out db), nameof(Open), defaultLogLevel, db);
         }
 
         public static Result Open([MarshalAs(UnmanagedType.LPStr)] string filename, out Sqlite3DatabaseHandle db, int flags, Sqlite3DatabaseHandle zvfs)
         {
-            return Logger(NetWorkedData.SQLite3.Open(filename, out db, flags, zvfs), nameof(Open), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.Open(filename, out db, flags, zvfs), nameof(Open), defaultLogLevel, db);
         }
 
         public static Result Open(byte[] filename, out Sqlite3DatabaseHandle db, int flags, Sqlite3DatabaseHandle zvfs)
         {
-            return Logger(NetWorkedData.SQLite3.Open(filename, out db, flags, zvfs), nameof(Open), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.Open(filename, out db, flags, zvfs), nameof(Open), defaultLogLevel, db);
         }
 
         public static Result Key(Sqlite3DatabaseHandle db, [MarshalAs(UnmanagedType.LPStr)] string key, int keylen)
         {
-            return Logger(NetWorkedData.SQLite3.Key(db, key, keylen), nameof(Key), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.Key(db, key, keylen), nameof(Key), defaultLogLevel, db);
         }
 
         public static Result Open16([MarshalAs(UnmanagedType.LPWStr)] string filename, out Sqlite3DatabaseHandle db)
         {
-            return Logger(NetWorkedData.SQLite3.Open16(filename, out db), nameof(Open16), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.Open16(filename, out db), nameof(Open16), defaultLogLevel, db);
         }
 
         public static Result EnableLoadExtension(Sqlite3DatabaseHandle db, int onoff)
         {
-            return Logger(NetWorkedData.SQLite3.EnableLoadExtension(db, onoff), nameof(EnableLoadExtension), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.EnableLoadExtension(db, onoff), nameof(EnableLoadExtension), defaultLogLevel, db);
         }
 
         public static Result Close(Sqlite3DatabaseHandle db)
         {
-            return Logger(NetWorkedData.SQLite3.Close(db), nameof(Close), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.Close(db), nameof(Close), defaultLogLevel, db);
         }
 
         public static Result Initialize()
@@ -169,17 +211,17 @@ namespace NetWorkedData.Logged
 
         public static Result BusyTimeout(Sqlite3DatabaseHandle db, int milliseconds)
         {
-            return Logger(NetWorkedData.SQLite3.BusyTimeout(db, milliseconds), nameof(BusyTimeout), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.BusyTimeout(db, milliseconds), nameof(BusyTimeout), defaultLogLevel, db);
         }
 
         public static int Changes(Sqlite3DatabaseHandle db)
         {
-            return Logger(NetWorkedData.SQLite3.Changes(db), nameof(Changes));
+            return Logger(NetWorkedData.SQLite3.Changes(db), nameof(Changes), db);
         }
 
         public static Result Prepare2(Sqlite3DatabaseHandle db, [MarshalAs(UnmanagedType.LPStr)] string sql, int numBytes, out Sqlite3DatabaseHandle stmt, Sqlite3DatabaseHandle pzTail)
         {
-            return Logger(NetWorkedData.SQLite3.Prepare2(db, sql, numBytes, out stmt, pzTail), nameof(Prepare2), defaultLogLevel);
+            return Logger(NetWorkedData.SQLite3.Prepare2(db, sql, numBytes, out stmt, pzTail), nameof(Prepare2), defaultLogLevel, db);
         }
 
         public static Result Step(Sqlite3DatabaseHandle stmt)
@@ -199,7 +241,7 @@ namespace NetWorkedData.Logged
 
         public static long LastInsertRowid(Sqlite3DatabaseHandle db)
         {
-            return Logger(NetWorkedData.SQLite3.LastInsertRowid(db), nameof(LastInsertRowid));
+            return Logger(NetWorkedData.SQLite3.LastInsertRowid(db), nameof(LastInsertRowid), db);
         }
 
         public static Sqlite3DatabaseHandle Errmsg(Sqlite3DatabaseHandle db)
@@ -313,7 +355,7 @@ namespace NetWorkedData.Logged
 
         public static ExtendedResult ExtendedErrCode(Sqlite3DatabaseHandle db)
         {
-            return Logger(NetWorkedData.SQLite3.ExtendedErrCode(db), nameof(ExtendedErrCode));
+            return Logger(NetWorkedData.SQLite3.ExtendedErrCode(db), nameof(ExtendedErrCode), db);
         }
 
         public static int LibVersionNumber()
