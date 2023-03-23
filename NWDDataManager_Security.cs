@@ -11,6 +11,7 @@ using System.IO;
 using UnityEngine;
 
 using System.Text;
+using static NetWorkedData.NWDORM;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -58,12 +59,13 @@ namespace NetWorkedData
             string rCipherVersion = " (sqlcipher -error-)";
             if (EditorDatabaseLoaded == true)
             {
-                IntPtr stmt = Sqlite.Prepare2(SQLiteEditorHandle, "PRAGMA cipher_version;");
-                while (Sqlite.Step(stmt) == SQLite3.Result.Row)
+                using (PrepareStatement tStatement = new PrepareStatement(SQLiteEditorHandle, "PRAGMA cipher_version;"))
                 {
-                    rCipherVersion = " (sqlcipher " + Sqlite.ColumnString(stmt, 0) + ")";
+                    while (tStatement.Step() == SQLite3.Result.Row)
+                    {
+                        rCipherVersion = " (sqlcipher " + Sqlite.ColumnString(tStatement, 0) + ")";
+                    }
                 }
-                Sqlite.Finalize(stmt);
             }
             return rReturn + rCipherVersion;
         }
