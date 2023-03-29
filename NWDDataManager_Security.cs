@@ -11,6 +11,7 @@ using System.IO;
 using UnityEngine;
 
 using System.Text;
+using NetWorkedData.NWDORM;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -58,12 +59,13 @@ namespace NetWorkedData
             string rCipherVersion = " (sqlcipher -error-)";
             if (EditorDatabaseLoaded == true)
             {
-                IntPtr stmt = Sqlite.Prepare2(SQLiteEditorHandle, "PRAGMA cipher_version;");
-                while (Sqlite.Step(stmt) == SQLite3.Result.Row)
+                using (IPrepareStatement tStatement = EditorFactory.CreatePrepareStatement ("PRAGMA cipher_version;"))
                 {
-                    rCipherVersion = " (sqlcipher " + Sqlite.ColumnString(stmt, 0) + ")";
+                    while (tStatement.Step() == SQLite3.Result.Row)
+                    {
+                        rCipherVersion = " (sqlcipher " + Sqlite.ColumnString(tStatement.Handle, 0) + ")";
+                    }
                 }
-                Sqlite.Finalize(stmt);
             }
             return rReturn + rCipherVersion;
         }
@@ -93,11 +95,7 @@ namespace NetWorkedData
             if (IsSecure())
             {
                 string tEditorPass = NWDAppConfiguration.SharedInstance().GetEditorPass();
-                SQLite3.Result trResultPassword = Sqlite.Key(SQLiteEditorHandle, tEditorPass, tEditorPass.Length);
-                if (trResultPassword != SQLite3.Result.OK)
-                {
-                    throw SQLiteException.New(trResultPassword, string.Format("Could not open database file with password: {0} ({1})", tDatabasePathEditor, trResultPassword));
-                }
+                EditorFactory.Key(tEditorPass);
             }
         }
         //-------------------------------------------------------------------------------------------------------------
@@ -106,11 +104,7 @@ namespace NetWorkedData
             if (IsSecure())
             {
                 string tAccountPass = NWDAppConfiguration.SharedInstance().GetAccountPass(sSurProtection);
-                SQLite3.Result trResultPassword = Sqlite.Key(SQLiteDeviceHandle, tAccountPass, tAccountPass.Length);
-                if (trResultPassword != SQLite3.Result.OK)
-                {
-                    throw SQLiteException.New(trResultPassword, string.Format("Could not open database file with password: {0} ({1})", tDatabasePathAccount, trResultPassword));
-                }
+                DeviceFactory.Key(tAccountPass);
             }
         }
         //-------------------------------------------------------------------------------------------------------------
