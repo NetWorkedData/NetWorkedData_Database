@@ -255,14 +255,21 @@ namespace NetWorkedData.NWDORM
 
         public StaticDatabase (DatabaseFactory sFactory)
         {
-            factory = sFactory;
-            factory.staticDatabase = factory.CreateDatabase();
-            factory.staticDatabase.isStatic = true;
+            if (sFactory.staticDatabase == null)
+            {
+                factory = sFactory;
+                factory.staticDatabase = factory.CreateDatabase();
+                factory.staticDatabase.isStatic = true;
+            }
+            else
+            {
+                factory = null;
+            }
         }
 
         public void Dispose()
         {
-            if (factory.staticDatabase != null)
+            if (factory != null && factory.staticDatabase != null)
             {
                 factory.staticDatabase.Dispose();
                 factory.staticDatabase = null;
